@@ -1,0 +1,1147 @@
+/* =========================================================================
+   CROMO — tema "acero azulado" sobre fondo casi negro
+   ========================================================================= */
+
+:root {
+  /* Fondos */
+  --bg: #0a0d11;
+  --panel: #0f141a;
+  --panel-2: #12181f;
+
+  /* Texto */
+  --text: #cfdae6;
+  --text-2: #8395a6;
+  --text-dim: #5f7182;
+
+  /* Bordes hairline */
+  --line: rgba(140, 175, 210, 0.15);
+  --line-2: rgba(140, 175, 210, 0.28);
+
+  /* Acento tech */
+  --accent: #3a8ad4;
+  --accent-soft: rgba(58, 138, 212, 0.14);
+
+  /* Fuentes — títulos en Bebas Neue, todo el resto (cuerpo/etiquetas) en
+     Spline Sans Mono. --font-sys y --font-mono apuntan a la mono para que
+     TODO lo que no sea título herede Spline Sans Mono automáticamente. */
+  --font-title: "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-body: "Spline Sans Mono", ui-monospace, "SF Mono", Menlo, Monaco,
+    monospace;
+  --font-sys: var(--font-body);
+  --font-mono: var(--font-body);
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --maxw: 1120px;
+
+  /* AJUSTABLE — opacidad de los tags/símbolos SVG del fondo (encima del Matrix).
+     La intensidad de la lluvia Matrix se calibra en las constantes de
+     GraffitiBackground.jsx (FADE_ALPHA, HEAD_COLOR, TRAIL_COLOR). */
+  --bg-tag-op: 0.05;
+  --bg-sym-op: 0.06;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sys);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* --- Fondo decorativo: Matrix (canvas) + tags/símbolos (SVG) ------------- */
+/* Fijo, cubre el viewport y queda DETRÁS de todo (z-index negativo). No suma
+   scroll (position:fixed) ni intercepta eventos (pointer-events:none).
+   Capas de atrás hacia adelante: (1) canvas Matrix, (2) SVG, (3) contenido. */
+.bg-fx {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-fx__matrix,
+.bg-fx__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.bg-fx__svg {
+  z-index: 1; /* SVG sobre el canvas, ambos detrás del contenido */
+}
+
+/* Tags de graffiti que se dibujan y borran en loop (draw/erase). */
+.bg-fx__tag {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; /* con pathLength=1 el dash cubre todo el trazo */
+  stroke-dashoffset: 1;
+  opacity: 0;
+  animation: bg-draw 8s ease-in-out infinite;
+}
+@keyframes bg-draw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  8% {
+    opacity: var(--bg-tag-op);
+  }
+  42% {
+    stroke-dashoffset: 0;
+    opacity: var(--bg-tag-op);
+  }
+  62% {
+    stroke-dashoffset: 0;
+    opacity: var(--bg-tag-op);
+  }
+  85% {
+    stroke-dashoffset: -1;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: -1;
+    opacity: 0;
+  }
+}
+
+/* Símbolos de código que aparecen/desaparecen en loop. */
+.bg-fx__sym {
+  fill: #7a93ab;
+  font-family: var(--font-body);
+  font-size: 26px;
+  opacity: 0;
+  animation: bg-sym 11s ease-in-out infinite;
+}
+@keyframes bg-sym {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  45%,
+  55% {
+    opacity: var(--bg-sym-op);
+  }
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* --- Efecto metal cromado en títulos ------------------------------------- */
+.chrome-text {
+  background: linear-gradient(180deg, #eaf2fa 0%, #b9c8d6 48%, #7a93ab 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* toque de acento MUY sutil */
+  text-shadow: 0 0 22px rgba(58, 138, 212, 0.06);
+}
+
+/* --- Kicker / etiquetas cortas ------------------------------------------- */
+.kicker {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin: 0 0 1.2rem;
+}
+
+/* --- Botones (estilo metálico con bisel) --------------------------------- */
+/* Base = variante secundaria/ghost. .btn--accent = variante primaria. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  padding: 0.7rem 1.15rem;
+  border-radius: var(--radius-sm);
+  /* metálico bisel — secundario */
+  background: linear-gradient(180deg, #232a32, #12171d);
+  color: #b9c6d3;
+  border: 0.5px solid rgba(140, 175, 210, 0.25);
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.1);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+.btn:hover {
+  background: linear-gradient(180deg, #2b333c, #171d25);
+  border-color: rgba(180, 200, 220, 0.35);
+  color: #eaf2fa;
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+/* Variante primaria */
+.btn--accent {
+  background: linear-gradient(180deg, #3a444f, #161c24);
+  color: #eaf2fa;
+  border: 0.5px solid rgba(180, 200, 220, 0.35);
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+}
+.btn--accent:hover {
+  background: linear-gradient(180deg, #454f5b, #1b222b);
+  border-color: rgba(200, 218, 235, 0.45);
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+}
+.btn--lg {
+  font-size: 0.95rem;
+  padding: 0.85rem 1.5rem;
+}
+/* Ícono dentro de un botón: hereda el color del texto (acero azulado del
+   theme) vía currentColor, sin colores de marca. */
+.btn__icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* =========================================================================
+   Navbar
+   ========================================================================= */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10, 13, 17, 0.6);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--line);
+}
+.navbar__inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* Monograma "FL": cuadrado con borde hairline + bisel metálico sutil. */
+.brand {
+  display: inline-flex;
+  align-items: center;
+}
+.brand__badge {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--panel-2);
+  border: 1px solid var(--line-2);
+  /* bisel: luz tenue arriba, sombra abajo -> sensación metálica */
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.12),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.brand:hover .brand__badge {
+  border-color: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.16),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(58, 138, 212, 0.2);
+}
+.brand__initials {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 1.18rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+.nav__link {
+  color: var(--text-2);
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+.nav__link:hover {
+  color: var(--text);
+}
+.nav__dot {
+  color: var(--text-dim);
+}
+.nav__btn {
+  font-size: 0.85rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: var(--radius-sm);
+  /* metálico bisel — secundario */
+  background: linear-gradient(180deg, #232a32, #12171d);
+  color: #b9c6d3;
+  border: 0.5px solid rgba(140, 175, 210, 0.25);
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.1);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease, transform 0.15s ease-out;
+}
+.nav__btn:hover {
+  background: linear-gradient(180deg, #2b333c, #171d25);
+  color: #eaf2fa;
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  border-color: rgba(180, 200, 220, 0.35);
+}
+
+/* =========================================================================
+   Hero
+   ========================================================================= */
+.hero {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 7rem 1.5rem 5rem;
+  text-align: center;
+  position: relative;
+}
+.hero__lightline {
+  width: min(520px, 70%);
+  height: 1px;
+  margin: 0 auto 2.6rem;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(58, 138, 212, 0.55),
+    rgba(234, 242, 250, 0.35),
+    transparent
+  );
+}
+.hero__title {
+  font-family: var(--font-title);
+  /* Bebas es condensada -> subimos el tamaño para que mantenga presencia */
+  font-size: clamp(4.2rem, 14vw, 9rem);
+  line-height: 0.92;
+  margin: 0.4rem 0 1.4rem;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+/* Decode "fantasma": el ghost fija el tamaño del texto final; la capa animada
+   va superpuesta (absolute) y NO empuja el layout mientras se resuelve. */
+.decode {
+  position: relative;
+  display: inline-block;
+}
+.decode__ghost {
+  visibility: hidden; /* reserva ancho/alto del texto final, sin verse */
+}
+.decode__live {
+  position: absolute;
+  inset: 0;
+  text-align: center; /* centrado dentro de la caja fija */
+}
+
+.hero__subtitle {
+  max-width: 40ch;
+  margin: 0 auto 2.6rem;
+  color: var(--text-2);
+  font-size: 1.05rem;
+}
+.hero__scroll {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  transition: color 0.2s ease;
+}
+.hero__scroll:hover {
+  color: var(--accent);
+}
+
+/* =========================================================================
+   Works
+   ========================================================================= */
+.works {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  /* evita scroll horizontal si las franjas exteriores sobresalen del contenido;
+     recorta solo en X y deja el eje vertical (reveal) intacto */
+  overflow-x: clip;
+}
+.work {
+  display: grid;
+  /* la captura pesa más que los datos -> recuadro panorámico de escritorio */
+  grid-template-columns: 1.7fr 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+  /* separación solo por espaciado vertical, sin líneas divisorias */
+  padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+
+  /* estado inicial del reveal */
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.work.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.work--reversed .work__media {
+  order: 2;
+}
+
+/* --- Haces de luz que recorren el borde del preview ---------------------- */
+/* Contenedor del preview: base de posicionamiento para los SVG superpuestos. */
+.work__media {
+  position: relative;
+}
+
+/* SVG que cubre el preview; su <rect> traza el perímetro. En reposo, invisible.
+   z-index:2 (sobre la ventana) pero por debajo del overlay clickeable (z-index:3);
+   pointer-events:none para no bloquear el click ni tapar el iframe. */
+.beam-svg {
+  position: absolute;
+  /* el SVG se extiende ~11px por fuera del preview en los 4 lados; como el
+     <rect> ocupa todo el viewBox, el trazo bordea el recuadro DESDE AFUERA
+     con ese gap, sin taparle el contenido/sitio embebido */
+  inset: -11px;
+  width: calc(100% + 22px);
+  height: calc(100% + 22px);
+  overflow: visible; /* deja que el trazo/glow desborde sin recortarse */
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+}
+/* Espejo perfecto: el mismo trazo, volteado -> baja por el lado opuesto. */
+.beam-svg--left {
+  transform: scaleX(-1);
+}
+
+/* Núcleo acero brillante con glow (doble drop-shadow = halo). */
+.beam-core {
+  fill: none;
+  stroke: #3a8ad4;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 14 86; /* segmento corto (14% del perímetro) + gap */
+  stroke-dashoffset: -2;
+  filter: drop-shadow(0 0 3px rgba(58, 138, 212, 0.9))
+    drop-shadow(0 0 7px rgba(58, 138, 212, 0.5));
+}
+/* Cabeza casi blanca: segmento más corto montado sobre el frente del núcleo. */
+.beam-head {
+  fill: none;
+  stroke: #eaf2fa;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 95;
+  stroke-dashoffset: -11;
+  filter: drop-shadow(0 0 3px rgba(234, 242, 250, 0.8));
+}
+
+/* Se dispara SOLO al pasar el mouse sobre el preview (no sobre título/datos).
+   Las tres animaciones comparten duración y timing -> quedan en fase.
+   Al ser SVG espejados con el mismo CSS, ambos haces son idénticos en brillo. */
+.work__media:hover .beam-svg {
+  animation: beam-fade 2.2s linear infinite;
+}
+.work__media:hover .beam-core {
+  animation: beam-core-move 2.2s linear infinite;
+}
+.work__media:hover .beam-head {
+  animation: beam-head-move 2.2s linear infinite;
+}
+
+/* El segmento arranca cerca del centro del borde superior y recorre el contorno
+   (esquina superior -> borde vertical -> esquina inferior) hasta el borde
+   inferior. Llega abajo al ~60% y queda quieto (invisible) como pausa. */
+@keyframes beam-core-move {
+  0% {
+    stroke-dashoffset: -2;
+  }
+  60% {
+    stroke-dashoffset: -50;
+  }
+  100% {
+    stroke-dashoffset: -50;
+  }
+}
+@keyframes beam-head-move {
+  0% {
+    stroke-dashoffset: -11;
+  }
+  60% {
+    stroke-dashoffset: -59;
+  }
+  100% {
+    stroke-dashoffset: -59;
+  }
+}
+/* Fade de entrada/salida + pausa invisible antes de repetir. */
+@keyframes beam-fade {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  52% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* --- Lado datos ---------------------------------------------------------- */
+.work__index {
+  color: var(--accent);
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+}
+.work__name {
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 4.4vw, 2.9rem);
+  margin: 0.7rem 0 0.25rem;
+  color: #e6eef6;
+  letter-spacing: 0.03em;
+  font-weight: 400;
+}
+.work__type {
+  margin: 0 0 1.1rem;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+.work__desc {
+  color: var(--text-2);
+  margin: 0 0 1.5rem;
+  max-width: 46ch;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1.8rem;
+}
+.chip {
+  font-size: 0.76rem;
+  color: var(--text-2);
+  padding: 0.32rem 0.72rem;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--panel);
+}
+
+/* =========================================================================
+   Ventana de navegador simulada
+   ========================================================================= */
+.browser {
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--panel);
+  overflow: hidden;
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(140, 175, 210, 0.04);
+}
+.browser__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.65rem 0.9rem;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--line);
+}
+.browser__dots {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot--red {
+  background: #e35b58;
+}
+.dot--yellow {
+  background: #e2b23d;
+}
+.dot--green {
+  background: #4fb063;
+}
+.browser__url {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.22rem 0.6rem;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.browser__viewport {
+  position: relative;
+  /* relación apaisada (panorámica) tipo escritorio; el iframe escalado hereda
+     esta proporción, así que se ve la web completa sin franjas ni recortes */
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: radial-gradient(
+    120% 120% at 50% 0%,
+    rgba(58, 138, 212, 0.06),
+    transparent 60%
+  );
+}
+
+/* Wrapper con padding para la maqueta abstracta (no aplica a iframe/imagen). */
+.viewport-pad {
+  position: absolute;
+  inset: 0;
+  padding: 0.9rem;
+}
+
+/* --- Sitio real embebido (iframe escalado) --- */
+.embed-scale {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--panel);
+}
+.embed-frame {
+  border: 0;
+  display: block;
+  transform-origin: top left;
+  /* width/height y transform: scale() se pasan inline desde Work.jsx */
+}
+
+/* --- Imagen de captura (fallback o preview estático) --- */
+.preview-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+/* --- Overlay clickeable con rótulo "Abrir sitio ↗" --- */
+.preview-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+.preview-overlay:hover {
+  background: rgba(10, 13, 17, 0.22);
+}
+.preview-overlay__label {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  /* metálico bisel — primario, con backdrop-blur */
+  color: #eaf2fa;
+  background: linear-gradient(
+    180deg,
+    rgba(58, 68, 79, 0.9),
+    rgba(22, 28, 36, 0.9)
+  );
+  border: 0.5px solid rgba(180, 200, 220, 0.35);
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+}
+.preview-overlay:hover .preview-overlay__label,
+.preview-overlay:focus-visible .preview-overlay__label {
+  opacity: 1;
+  transform: none;
+}
+
+/* =========================================================================
+   Maquetas abstractas (bloques del tema)
+   ========================================================================= */
+.mock {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.mock__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+.mock__brand {
+  width: 46px;
+  height: 10px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #eaf2fa, #7a93ab);
+  opacity: 0.85;
+}
+.mock__navlinks {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+.mock__navlinks i {
+  width: 22px;
+  height: 7px;
+  border-radius: 3px;
+  background: var(--line-2);
+  display: inline-block;
+}
+.mock__cart {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+}
+
+.mock__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.6rem 0;
+}
+.mock__hero--center {
+  align-items: center;
+  text-align: center;
+}
+.mock__h1 {
+  height: 14px;
+  width: 70%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #d6e2ee, #8395a6);
+  opacity: 0.9;
+}
+.mock__h1--short {
+  width: 45%;
+}
+.mock__cta {
+  margin-top: 0.35rem;
+  width: 92px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--accent);
+  opacity: 0.9;
+}
+
+.mock__grid {
+  display: grid;
+  gap: 0.55rem;
+  flex: 1;
+}
+.mock__grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.mock__grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.mock__grid span {
+  border-radius: 6px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.mock__grid--cards {
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+}
+.mock__grid--cards .card {
+  border-radius: 6px;
+  background: linear-gradient(
+    180deg,
+    var(--panel-2),
+    rgba(58, 138, 212, 0.05)
+  );
+  border: 1px solid var(--line);
+}
+
+/* Dashboard */
+.mock--dashboard {
+  flex-direction: row;
+  gap: 0.7rem;
+}
+.mock__sidebar {
+  width: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-right: 0.6rem;
+  border-right: 1px solid var(--line);
+}
+.mock__sidebar i {
+  height: 8px;
+  border-radius: 3px;
+  background: var(--line-2);
+}
+.mock__sidebar i:first-child {
+  background: var(--accent);
+}
+.mock__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.mock__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.55rem;
+}
+.mock__stats span {
+  height: 34px;
+  border-radius: 6px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.mock__chart {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+.mock__chart b {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--accent), rgba(58, 138, 212, 0.25));
+}
+
+/* =========================================================================
+   Footer
+   ========================================================================= */
+.footer {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 6rem 1.5rem 5rem;
+  text-align: center;
+  border-top: 1px solid var(--line);
+  position: relative;
+}
+.footer__lightline {
+  width: min(420px, 60%);
+  height: 1px;
+  margin: 0 auto 2.4rem;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(58, 138, 212, 0.5),
+    transparent
+  );
+}
+/* Footer minimal: solo el logo y la línea de crédito. */
+.footer--minimal {
+  padding: 4rem 1.5rem 3.5rem;
+}
+.footer__name {
+  display: inline-block;
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: 1.7rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 1.1rem;
+}
+.footer__legal {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+/* =========================================================================
+   Reveal reutilizable (mismo fade-in que las secciones de trabajo)
+   ========================================================================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* =========================================================================
+   Panel de legibilidad — acabado metálico con bisel (misma familia que los
+   botones). Tapa el fondo Matrix con un degradado sólido para que el texto se
+   lea nítido. Va sobre el bg-fx (z-index -1) y debajo del texto (los hijos
+   pintan sobre el fondo del panel). Se comparte con la columna de datos de las
+   tarjetas de trabajo (.work__data).
+   ========================================================================= */
+.panel,
+.work__data {
+  background: linear-gradient(180deg, #1a2028, #10151b);
+  border: 0.5px solid rgba(180, 200, 220, 0.2);
+  box-shadow: inset 0 1px 0 rgba(234, 242, 250, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius);
+}
+/* Panel de secciones (hero, Sobre mí, Contacto): hugea el contenido y centra. */
+.panel {
+  width: fit-content;
+  max-width: min(92vw, 760px);
+  margin-inline: auto;
+  padding: 1.75rem 2rem;
+}
+/* Columna de datos de la tarjeta: llena su celda del grid (no rompe 2 cols). */
+.work__data {
+  padding: 1.6rem 1.75rem;
+}
+
+/* =========================================================================
+   Sobre mí
+   ========================================================================= */
+.about {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(4rem, 9vw, 7rem) 1.5rem;
+  text-align: center;
+  /* hairline sutil que separa los trabajos de las secciones personales */
+  border-top: 1px solid var(--line);
+}
+.about__title {
+  font-family: var(--font-title);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  margin: 0.35rem 0 1.4rem;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+.about__text {
+  max-width: 62ch;
+  margin: 0 auto;
+  color: var(--text-2);
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+/* dos columnas en desktop: texto + tarjeta holográfica */
+.about__grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+
+/* =========================================================================
+   Tarjeta holográfica 3D (Sobre mí)
+   ========================================================================= */
+/* wrapper: da perspectiva y centra la tarjeta en su columna */
+.devcard-wrap {
+  display: flex;
+  justify-content: center;
+  perspective: 1000px;
+}
+.devcard {
+  position: relative;
+  width: 384px; /* +20% */
+  max-width: 100%;
+  padding: 2.05rem 1.95rem;
+  text-align: left;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #1b2430, #0c1016);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(58, 138, 212, 0.08), 0 0 26px -6px rgba(58, 138, 212, 0.28);
+  transform: perspective(800px) rotateX(0deg) rotateY(0deg);
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+  overflow: hidden;
+  will-change: transform;
+}
+/* brillo holográfico: reflejo que sigue al cursor (--gx/--gy) */
+.devcard__glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+      circle at var(--gx, 50%) var(--gy, 50%),
+      rgba(234, 242, 250, 0.18),
+      transparent 45%
+    ),
+    linear-gradient(
+      115deg,
+      transparent 40%,
+      rgba(58, 138, 212, 0.1) 48%,
+      rgba(234, 242, 250, 0.12) 50%,
+      rgba(58, 138, 212, 0.1) 52%,
+      transparent 60%
+    );
+  mix-blend-mode: screen;
+}
+.devcard__role {
+  font-size: 0.82rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0 0 0.6rem;
+}
+.devcard__name {
+  font-family: var(--font-title);
+  font-size: 2.75rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  margin: 0 0 0.7rem;
+}
+.devcard__id {
+  font-size: 0.86rem;
+  color: var(--text-2);
+  margin: 0 0 1.35rem;
+}
+.devcard__chips {
+  display: flex;
+  gap: 0.6rem;
+}
+
+/* =========================================================================
+   Contacto
+   ========================================================================= */
+.contact {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(4rem, 9vw, 6.5rem) 1.5rem 2rem;
+  text-align: center;
+  position: relative;
+}
+.contact__lightline {
+  width: min(420px, 60%);
+  height: 1px;
+  margin: 0 auto 2.4rem;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(58, 138, 212, 0.5),
+    transparent
+  );
+}
+.contact__title {
+  font-family: var(--font-title);
+  font-size: clamp(2.6rem, 7vw, 4.2rem);
+  margin: 0.35rem 0 1rem;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+.contact__text {
+  max-width: 42ch;
+  margin: 0 auto 2.3rem;
+  color: var(--text-2);
+}
+.contact__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* =========================================================================
+   Responsive — mobile a una sola columna
+   ========================================================================= */
+@media (max-width: 760px) {
+  .nav__link,
+  .nav__dot {
+    display: none;
+  }
+  .work {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+  /* la captura siempre arriba en mobile, sin importar el orden alterno */
+  .work--reversed .work__media {
+    order: 0;
+  }
+  /* sin hover en mobile -> desactivamos los haces de luz */
+  .beam-svg {
+    display: none;
+  }
+  /* panel de legibilidad: padding más contenido en mobile */
+  .panel {
+    max-width: 100%;
+    padding: 1.25rem 1.25rem;
+  }
+  /* Sobre mí: texto y tarjeta apilados en mobile */
+  .about__grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  /* botones de contacto apilados en mobile */
+  .contact__actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  .contact__actions .btn {
+    width: 100%;
+    max-width: 320px;
+    justify-content: center;
+  }
+  .hero {
+    padding-top: 5rem;
+  }
+}
+
+/* Respeta usuarios con movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .work,
+  .reveal {
+    transition: none;
+  }
+  /* haces de luz: sin recorrido. Quedan invisibles (nada de animación). */
+  .work__media:hover .beam-svg,
+  .work__media:hover .beam-core,
+  .work__media:hover .beam-head {
+    animation: none;
+  }
+  /* fondo: tags/símbolos estáticos y tenues (el canvas ya se dibuja quieto). */
+  .bg-fx__tag {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: var(--bg-tag-op);
+  }
+  .bg-fx__sym {
+    animation: none;
+    opacity: var(--bg-sym-op);
+  }
+}
