@@ -409,6 +409,14 @@ ul {
   opacity: 1;
   transform: none;
 }
+/* Alternancia: solo cambia el ORDEN visual (order), nunca el tamaño de las
+   columnas. Por eso el template se "espeja" (1fr 1.7fr en vez de 1.7fr 1fr):
+   la pista chica queda a la izquierda (datos, order 0) y la grande a la
+   derecha (preview, order 2) — el preview siempre pesa 1.7fr, sin importar
+   de qué lado cae. */
+.work--reversed {
+  grid-template-columns: 1fr 1.7fr;
+}
 .work--reversed .work__media {
   order: 2;
 }
@@ -1082,7 +1090,8 @@ ul {
   .nav__dot {
     display: none;
   }
-  .work {
+  .work,
+  .work--reversed {
     grid-template-columns: 1fr;
     gap: 1.8rem;
   }

@@ -44,4 +44,14 @@ export const projects = [
     image: '/captures/distribucion.png', // fallback si el iframe queda bloqueado
     mockup: 'landing', // se usa como último recurso si iframe e imagen fallan
   },
+  {
+    name: 'Casa Mate Argentino',
+    type: 'Catálogo de productos',
+    desc: 'Catálogo de productos con navegación clara y carga estática ultrarrápida. Diseño sobrio, enfocado en mostrar el producto.',
+    tech: ['Astro', 'CSS'],
+    href: 'https://casamateargentino.vercel.app/',
+    embed: true, // muestra el sitio real embebido en la ventana
+    image: '/captures/casamate.png', // fallback si el iframe queda bloqueado
+    mockup: 'ecommerce', // se usa como último recurso si iframe e imagen fallan
+  },
 ]
