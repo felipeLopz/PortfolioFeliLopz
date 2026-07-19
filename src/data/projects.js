@@ -54,4 +54,14 @@ export const projects = [
     image: '/captures/casamate.png', // fallback si el iframe queda bloqueado
     mockup: 'ecommerce', // se usa como último recurso si iframe e imagen fallan
   },
+  {
+    name: 'Agenda de Pádel',
+    type: 'Aplicación de gestión / dashboard',
+    desc: 'Aplicación web para gestionar clases de pádel: agenda anual, control de alumnos, cobros y estadísticas. Panel privado con acceso por login.',
+    tech: ['React', 'Vercel'], // placeholder — ajustá si hace falta
+    href: 'https://agenda-padel.vercel.app/',
+    embed: false, // requiere login -> NO se puede embeber en iframe
+    image: '/captures/agenda-padel.png', // captura del dashboard (obligatoria: sin embed, es la única vista)
+    mockup: 'dashboard', // último recurso si la imagen no carga
+  },
 ]
