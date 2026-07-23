@@ -109,13 +109,29 @@ export default function GraffitiBackground() {
       }
     }
 
-    const id = setInterval(draw, FRAME_MS)
+    // Loop con pausa cuando la pestaña no está visible (ahorra CPU sin cambiar
+    // nada visible: si no se ve, no dibuja).
+    let id = null
+    const start = () => {
+      if (id === null) id = setInterval(draw, FRAME_MS)
+    }
+    const stop = () => {
+      if (id !== null) {
+        clearInterval(id)
+        id = null
+      }
+    }
+    start()
+
     const onResize = () => setup()
+    const onVisibility = () => (document.hidden ? stop() : start())
     window.addEventListener('resize', onResize)
+    document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
-      clearInterval(id)
+      stop()
       window.removeEventListener('resize', onResize)
+      document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [])
 

@@ -61,7 +61,7 @@ export const projects = [
     tech: ['React', 'Vercel'], // placeholder — ajustá si hace falta
     href: 'https://agenda-padel.vercel.app/',
     embed: false, // requiere login -> NO se puede embeber en iframe
-    image: '/captures/agenda-padel.png', // captura del dashboard (obligatoria: sin embed, es la única vista)
+    image: '/captures/agenda-padel.webp', // captura del dashboard (obligatoria: sin embed, es la única vista)
     mockup: 'dashboard', // último recurso si la imagen no carga
   },
   {
