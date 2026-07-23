@@ -64,4 +64,14 @@ export const projects = [
     image: '/captures/agenda-padel.png', // captura del dashboard (obligatoria: sin embed, es la única vista)
     mockup: 'dashboard', // último recurso si la imagen no carga
   },
+  {
+    name: 'iPhone Allen',
+    type: 'Tienda / catálogo de productos',
+    desc: 'Tienda online con catálogo de productos Apple, navegación clara y foco en la conversión.',
+    tech: ['HTTPS'],
+    href: 'https://iphone-allen.vercel.app/',
+    embed: true, // no requiere login -> se embebe el sitio real
+    image: '/captures/iphone-allen.png', // fallback si el iframe queda bloqueado (agregar el PNG en public/captures/)
+    mockup: 'ecommerce', // último recurso si iframe e imagen fallan
+  },
 ]
